@@ -3,7 +3,7 @@
   "total_repos": 5,
   "total_stars": 0,
   "total_forks": 0,
-  "updated_at": "2026-01-31T21:26:41.226541Z",
+  "updated_at": "2026-01-31T21:29:32.422100Z",
   "projects": [
     {
       "name": "portafolio",
@@ -13,9 +13,7 @@
       "stars": 0,
       "forks": 0,
       "language": "HTML",
-      "topics": [],
-      "created_at": "2026-01-31T21:00:36Z",
-      "updated_at": "2026-01-31T21:26:36Z"
+      "topics": []
     },
     {
       "name": "Portfolio-DAM-FINAL",
@@ -25,9 +23,7 @@
       "stars": 0,
       "forks": 0,
       "language": null,
-      "topics": [],
-      "created_at": "2026-01-09T11:54:13Z",
-      "updated_at": "2026-01-09T11:54:13Z"
+      "topics": []
     },
     {
       "name": "Portfolio-DAM",
@@ -37,9 +33,7 @@
       "stars": 0,
       "forks": 0,
       "language": null,
-      "topics": [],
-      "created_at": "2026-01-09T11:50:20Z",
-      "updated_at": "2026-01-09T11:50:20Z"
+      "topics": []
     },
     {
       "name": "IMAGINEM",
@@ -49,9 +43,7 @@
       "stars": 0,
       "forks": 0,
       "language": "HTML",
-      "topics": [],
-      "created_at": "2025-12-12T04:22:23Z",
-      "updated_at": "2025-12-12T05:35:27Z"
+      "topics": []
     },
     {
       "name": "gerardMaestre",
@@ -61,9 +53,7 @@
       "stars": 0,
       "forks": 0,
       "language": "HTML",
-      "topics": [],
-      "created_at": "2025-11-23T22:37:54Z",
-      "updated_at": "2025-11-23T22:52:07Z"
+      "topics": []
     }
   ]
 }
