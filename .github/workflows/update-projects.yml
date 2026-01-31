@@ -27,8 +27,7 @@ jobs:
           python-version: '3.11'
           
       - name: Install dependencies
-        run: |
-          pip install requests
+        run: pip install requests
           
       - name: Fetch GitHub projects
         env:
@@ -36,74 +35,27 @@ jobs:
           GITHUB_USERNAME: ${{ github.repository_owner }}
         run: |
           python << 'EOF'
-          import requests
-          import json
-          import os
+          import requests, json, os
           from datetime import datetime
-
           username = os.environ.get('GITHUB_USERNAME')
           token = os.environ.get('GITHUB_TOKEN')
-          
           headers = {'Authorization': f'token {token}'} if token else {}
-          
-          url = f'https://api.github.com/users/{username}/repos'
-          params = {'sort': 'updated', 'per_page': 100, 'type': 'owner'}
-          
-          response = requests.get(url, headers=headers, params=params)
-          
-          if response.status_code != 200:
-              print(f"Error: {response.status_code}")
-              print(response.text)
-              exit(1)
-          
+          response = requests.get(f'https://api.github.com/users/{username}/repos', headers=headers, params={'sort': 'updated', 'per_page': 100})
           repos = response.json()
-          projects = []
-          total_stars = 0
-          total_forks = 0
-          
+          projects, total_stars, total_forks = [], 0, 0
           for repo in repos:
-              if repo['fork'] or repo['archived']:
-                  continue
-                  
+              if repo['fork'] or repo['archived']: continue
               total_stars += repo['stargazers_count']
               total_forks += repo['forks_count']
-              
-              projects.append({
-                  'name': repo['name'],
-                  'description': repo['description'],
-                  'html_url': repo['html_url'],
-                  'homepage': repo['homepage'],
-                  'stars': repo['stargazers_count'],
-                  'forks': repo['forks_count'],
-                  'language': repo['language'],
-                  'topics': repo['topics'][:5] if repo['topics'] else [],
-                  'created_at': repo['created_at'],
-                  'updated_at': repo['updated_at']
-              })
-          
-          output = {
-              'username': username,
-              'total_repos': len(projects),
-              'total_stars': total_stars,
-              'total_forks': total_forks,
-              'updated_at': datetime.utcnow().isoformat() + 'Z',
-              'projects': projects
-          }
-          
-          with open('projects.json', 'w', encoding='utf-8') as f:
-              json.dump(output, f, indent=2, ensure_ascii=False)
-          
-          print(f"✅ {len(projects)} proyectos actualizados")
+              projects.append({'name': repo['name'], 'description': repo['description'], 'html_url': repo['html_url'], 'homepage': repo['homepage'], 'stars': repo['stargazers_count'], 'forks': repo['forks_count'], 'language': repo['language'], 'topics': repo['topics'][:5]})
+          with open('projects.json', 'w') as f:
+              json.dump({'username': username, 'total_repos': len(projects), 'total_stars': total_stars, 'total_forks': total_forks, 'updated_at': datetime.utcnow().isoformat() + 'Z', 'projects': projects}, f, indent=2)
+          print(f"✅ {len(projects)} proyectos")
           EOF
           
-      - name: Commit and push changes
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add projects.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "🤖 Auto-update projects $(date +'%Y-%m-%d %H:%M')"
-            git push
-          fi
+          git diff --staged --quiet || (git commit -m "🤖 Update projects" && git push)
