@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Mis Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #151a23;
+            --text-primary: #00ff9f;
+            --text-secondary: #8899aa;
+            --accent: #ff3366;
+            --border: #2a3441;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header with glitch effect */
+        header {
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            color: var(--text-primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+            animation: glitchText 3s infinite;
+        }
+
+        @keyframes glitchText {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .subtitle span {
+            color: var(--accent);
+        }
+
+        /* Stats bar */
+        .stats {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        /* Filter buttons */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--text-primary);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .filter-btn:hover::before,
+        .filter-btn.active::before {
+            left: 0;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        /* Projects grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .project-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        .project-card:nth-child(5) { animation-delay: 0.5s; }
+        .project-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transition: left 0.5s ease;
+        }
+
+        .project-card:hover::before {
+            left: 100%;
+        }
+
+        .project-card:hover {
+            border-color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .project-name {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        .project-stars {
+            background: var(--bg-primary);
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .project-stars::before {
+            content: '★ ';
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            min-height: 3.2em;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .language-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-link {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--text-primary);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .project-link:hover::before {
+            left: 0;
+        }
+
+        .project-link:hover {
+            color: var(--bg-primary);
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* No projects message */
+        .no-projects {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 2px solid var(--border);
+            margin-top: 4rem;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                gap: 1.5rem;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Portfolio.dev</h1>
+            <p class="subtitle">> Desarrollador | <span id="github-username">GitHub</span></p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-repos">--</div>
+                <div class="stat-label">Repositorios</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-stars">--</div>
+                <div class="stat-label">Estrellas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-forks">--</div>
+                <div class="stat-label">Forks</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="javascript">JavaScript</button>
+            <button class="filter-btn" data-filter="python">Python</button>
+            <button class="filter-btn" data-filter="html">HTML</button>
+            <button class="filter-btn" data-filter="other">Otros</button>
+        </div>
+
+        <div id="projects-container">
+            <div class="loading">Cargando proyectos</div>
+        </div>
+
+        <footer>
+            <p>Actualizado automáticamente desde <a href="#" id="github-link" target="_blank">GitHub</a></p>
+            <p style="margin-top: 1rem; opacity: 0.5;">Última actualización: <span id="last-update">--</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Language colors
+        const languageColors = {
+            'JavaScript': '#f1e05a',
+            'Python': '#3572A5',
+            'HTML': '#e34c26',
+            'CSS': '#563d7c',
+            'TypeScript': '#2b7489',
+            'Java': '#b07219',
+            'C++': '#f34b7d',
+            'C': '#555555',
+            'Go': '#00ADD8',
+            'Rust': '#dea584',
+            'Ruby': '#701516',
+            'PHP': '#4F5D95',
+            'Swift': '#ffac45',
+            'Kotlin': '#A97BFF',
+            'Dart': '#00B4AB',
+            'Vue': '#41b883',
+            'React': '#61dafb'
+        };
+
+        let allProjects = [];
+        let currentFilter = 'all';
+
+        // Load projects from JSON
+        async function loadProjects() {
+            try {
+                const response = await fetch('projects.json');
+                const data = await response.json();
+                
+                allProjects = data.projects;
+                updateStats(data);
+                updateUserInfo(data);
+                displayProjects(allProjects);
+                updateLastUpdate(data.updated_at);
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                document.getElementById('projects-container').innerHTML = 
+                    '<div class="no-projects">Error al cargar los proyectos. Asegúrate de que projects.json existe.</div>';
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('total-repos').textContent = data.total_repos || allProjects.length;
+            document.getElementById('total-stars').textContent = data.total_stars || 
+                allProjects.reduce((sum, p) => sum + p.stars, 0);
+            document.getElementById('total-forks').textContent = data.total_forks || 
+                allProjects.reduce((sum, p) => sum + p.forks, 0);
+        }
+
+        function updateUserInfo(data) {
+            if (data.username) {
+                document.getElementById('github-username').textContent = data.username;
+                document.getElementById('github-link').href = `https://github.com/${data.username}`;
+                document.getElementById('github-link').textContent = `@${data.username}`;
+            }
+        }
+
+        function updateLastUpdate(timestamp) {
+            if (timestamp) {
+                const date = new Date(timestamp);
+                document.getElementById('last-update').textContent = date.toLocaleString('es-ES');
+            }
+        }
+
+        function displayProjects(projects) {
+            const container = document.getElementById('projects-container');
+            
+            if (!projects || projects.length === 0) {
+                container.innerHTML = '<div class="no-projects">No hay proyectos para mostrar.</div>';
+                return;
+            }
+
+            const projectsHTML = projects.map(project => `
+                <div class="project-card" data-language="${(project.language || 'Other').toLowerCase()}">
+                    <div class="project-header">
+                        <h3 class="project-name">${project.name}</h3>
+                        <span class="project-stars">${project.stars}</span>
+                    </div>
+                    <p class="project-description">${project.description || 'Sin descripción'}</p>
+                    <div class="project-meta">
+                        ${project.language ? `
+                        <div class="meta-item">
+                            <span class="language-dot" style="background-color: ${languageColors[project.language] || '#8899aa'}"></span>
+                            <span>${project.language}</span>
+                        </div>
+                        ` : ''}
+                        ${project.forks > 0 ? `
+                        <div class="meta-item">
+                            <span>↗ ${project.forks}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${project.topics && project.topics.length > 0 ? `
+                    <div class="project-tags">
+                        ${project.topics.slice(0, 3).map(topic => `<span class="tag">${topic}</span>`).join('')}
+                    </div>
+                    ` : ''}
+                    <div class="project-links">
+                        <a href="${project.html_url}" class="project-link" target="_blank">Ver Código</a>
+                        ${project.homepage ? `<a href="${project.homepage}" class="project-link" target="_blank">Demo</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `<div class="projects-grid">${projectsHTML}</div>`;
+        }
+
+        function filterProjects(filter) {
+            currentFilter = filter;
+            
+            if (filter === 'all') {
+                displayProjects(allProjects);
+            } else {
+                const filtered = allProjects.filter(project => {
+                    const lang = (project.language || 'other').toLowerCase();
+                    return lang === filter || (filter === 'other' && !project.language);
+                });
+                displayProjects(filtered);
+            }
+        }
+
+        // Filter button handlers
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterProjects(btn.dataset.filter);
+            });
+        });
+
+        // Initialize
+        loadProjects();
+    </script>
+</body>
+</html>
