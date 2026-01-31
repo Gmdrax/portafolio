@@ -2,12 +2,14 @@ name: Update Projects
 
 on:
   schedule:
-    # Ejecuta automáticamente cada día a las 00:00 UTC
     - cron: '0 0 * * *'
-  workflow_dispatch:  # Permite ejecución manual
+  workflow_dispatch:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
 
 jobs:
   update-projects:
@@ -15,12 +17,14 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-        
-      - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v4
         with:
-          python-version: '3.10'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
           
       - name: Install dependencies
         run: |
@@ -40,17 +44,10 @@ jobs:
           username = os.environ.get('GITHUB_USERNAME')
           token = os.environ.get('GITHUB_TOKEN')
           
-          headers = {}
-          if token:
-              headers['Authorization'] = f'token {token}'
+          headers = {'Authorization': f'token {token}'} if token else {}
           
-          # Obtener repositorios del usuario
           url = f'https://api.github.com/users/{username}/repos'
-          params = {
-              'sort': 'updated',
-              'per_page': 100,
-              'type': 'owner'
-          }
+          params = {'sort': 'updated', 'per_page': 100, 'type': 'owner'}
           
           response = requests.get(url, headers=headers, params=params)
           
@@ -60,21 +57,18 @@ jobs:
               exit(1)
           
           repos = response.json()
-          
-          # Filtrar y formatear proyectos
           projects = []
           total_stars = 0
           total_forks = 0
           
           for repo in repos:
-              # Omitir forks y repos archivados si lo deseas
               if repo['fork'] or repo['archived']:
                   continue
                   
               total_stars += repo['stargazers_count']
               total_forks += repo['forks_count']
               
-              project = {
+              projects.append({
                   'name': repo['name'],
                   'description': repo['description'],
                   'html_url': repo['html_url'],
@@ -85,11 +79,8 @@ jobs:
                   'topics': repo['topics'][:5] if repo['topics'] else [],
                   'created_at': repo['created_at'],
                   'updated_at': repo['updated_at']
-              }
-              
-              projects.append(project)
+              })
           
-          # Crear JSON de salida
           output = {
               'username': username,
               'total_repos': len(projects),
@@ -99,18 +90,20 @@ jobs:
               'projects': projects
           }
           
-          # Guardar a archivo
           with open('projects.json', 'w', encoding='utf-8') as f:
               json.dump(output, f, indent=2, ensure_ascii=False)
           
           print(f"✅ {len(projects)} proyectos actualizados")
-          print(f"⭐ {total_stars} estrellas totales")
-          print(f"🔱 {total_forks} forks totales")
           EOF
           
-      - name: Commit and push if changed
+      - name: Commit and push changes
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add projects.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto-update projects [$(date +'%Y-%m-%d %H:%M:%S')]" && git push)
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Auto-update projects $(date +'%Y-%m-%d %H:%M')"
+            git push
+          fi
