@@ -37,20 +37,52 @@ jobs:
           python << 'EOF'
           import requests, json, os
           from datetime import datetime
+          
           username = os.environ.get('GITHUB_USERNAME')
           token = os.environ.get('GITHUB_TOKEN')
           headers = {'Authorization': f'token {token}'} if token else {}
-          response = requests.get(f'https://api.github.com/users/{username}/repos', headers=headers, params={'sort': 'updated', 'per_page': 100})
+          
+          print(f"Buscando repositorios para: {username}")
+          
+          url = f'https://api.github.com/users/{username}/repos'
+          params = {'sort': 'updated', 'per_page': 100, 'type': 'owner'}
+          response = requests.get(url, headers=headers, params=params)
+          
+          if response.status_code != 200:
+              print(f"Error accediendo a GitHub: {response.status_code}")
+              exit(1)
+              
           repos = response.json()
           projects, total_stars, total_forks = [], 0, 0
+          
           for repo in repos:
               if repo['fork'] or repo['archived']: continue
               total_stars += repo['stargazers_count']
               total_forks += repo['forks_count']
-              projects.append({'name': repo['name'], 'description': repo['description'], 'html_url': repo['html_url'], 'homepage': repo['homepage'], 'stars': repo['stargazers_count'], 'forks': repo['forks_count'], 'language': repo['language'], 'topics': repo['topics'][:5]})
+              projects.append({
+                  'name': repo['name'], 
+                  'description': repo['description'], 
+                  'html_url': repo['html_url'], 
+                  'homepage': repo['homepage'], 
+                  'stars': repo['stargazers_count'], 
+                  'forks': repo['forks_count'], 
+                  'language': repo['language'], 
+                  'topics': repo['topics'][:5]
+              })
+              
+          output = {
+              'username': username, 
+              'total_repos': len(projects), 
+              'total_stars': total_stars, 
+              'total_forks': total_forks, 
+              'updated_at': datetime.utcnow().isoformat() + 'Z', 
+              'projects': projects
+          }
+          
           with open('projects.json', 'w') as f:
-              json.dump({'username': username, 'total_repos': len(projects), 'total_stars': total_stars, 'total_forks': total_forks, 'updated_at': datetime.utcnow().isoformat() + 'Z', 'projects': projects}, f, indent=2)
-          print(f"✅ {len(projects)} proyectos")
+              json.dump(output, f, indent=2)
+          
+          print(f"✅ Guardados {len(projects)} proyectos en projects.json")
           EOF
           
       - name: Commit changes
