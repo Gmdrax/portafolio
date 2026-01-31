@@ -1,0 +1,116 @@
+name: Update Projects
+
+on:
+  schedule:
+    # Ejecuta automáticamente cada día a las 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Permite ejecución manual
+  push:
+    branches:
+      - main
+
+jobs:
+  update-projects:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          pip install requests
+          
+      - name: Fetch GitHub projects
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+        run: |
+          python << 'EOF'
+          import requests
+          import json
+          import os
+          from datetime import datetime
+
+          username = os.environ.get('GITHUB_USERNAME')
+          token = os.environ.get('GITHUB_TOKEN')
+          
+          headers = {}
+          if token:
+              headers['Authorization'] = f'token {token}'
+          
+          # Obtener repositorios del usuario
+          url = f'https://api.github.com/users/{username}/repos'
+          params = {
+              'sort': 'updated',
+              'per_page': 100,
+              'type': 'owner'
+          }
+          
+          response = requests.get(url, headers=headers, params=params)
+          
+          if response.status_code != 200:
+              print(f"Error: {response.status_code}")
+              print(response.text)
+              exit(1)
+          
+          repos = response.json()
+          
+          # Filtrar y formatear proyectos
+          projects = []
+          total_stars = 0
+          total_forks = 0
+          
+          for repo in repos:
+              # Omitir forks y repos archivados si lo deseas
+              if repo['fork'] or repo['archived']:
+                  continue
+                  
+              total_stars += repo['stargazers_count']
+              total_forks += repo['forks_count']
+              
+              project = {
+                  'name': repo['name'],
+                  'description': repo['description'],
+                  'html_url': repo['html_url'],
+                  'homepage': repo['homepage'],
+                  'stars': repo['stargazers_count'],
+                  'forks': repo['forks_count'],
+                  'language': repo['language'],
+                  'topics': repo['topics'][:5] if repo['topics'] else [],
+                  'created_at': repo['created_at'],
+                  'updated_at': repo['updated_at']
+              }
+              
+              projects.append(project)
+          
+          # Crear JSON de salida
+          output = {
+              'username': username,
+              'total_repos': len(projects),
+              'total_stars': total_stars,
+              'total_forks': total_forks,
+              'updated_at': datetime.utcnow().isoformat() + 'Z',
+              'projects': projects
+          }
+          
+          # Guardar a archivo
+          with open('projects.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, indent=2, ensure_ascii=False)
+          
+          print(f"✅ {len(projects)} proyectos actualizados")
+          print(f"⭐ {total_stars} estrellas totales")
+          print(f"🔱 {total_forks} forks totales")
+          EOF
+          
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add projects.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto-update projects [$(date +'%Y-%m-%d %H:%M:%S')]" && git push)
