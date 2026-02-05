@@ -3,12 +3,12 @@
   "total_repos": 6,
   "total_stars": 0,
   "total_forks": 0,
-  "updated_at": "2026-02-04T02:26:49.921370Z",
+  "updated_at": "2026-02-05T02:28:41.057804Z",
   "projects": [
     {
-      "name": "sanvalentin",
+      "name": "portafolio",
       "description": null,
-      "html_url": "https://github.com/Gmdrax/sanvalentin",
+      "html_url": "https://github.com/Gmdrax/portafolio",
       "homepage": null,
       "stars": 0,
       "forks": 0,
@@ -16,9 +16,9 @@
       "topics": []
     },
     {
-      "name": "portafolio",
+      "name": "sanvalentin",
       "description": null,
-      "html_url": "https://github.com/Gmdrax/portafolio",
+      "html_url": "https://github.com/Gmdrax/sanvalentin",
       "homepage": null,
       "stars": 0,
       "forks": 0,
