@@ -1,10 +1,30 @@
 {
   "username": "Gmdrax",
-  "total_repos": 6,
+  "total_repos": 8,
   "total_stars": 0,
   "total_forks": 0,
-  "updated_at": "2026-02-05T02:28:41.057804Z",
+  "updated_at": "2026-02-06T02:28:57.726549Z",
   "projects": [
+    {
+      "name": "Pr01_Minitienda",
+      "description": null,
+      "html_url": "https://github.com/Gmdrax/Pr01_Minitienda",
+      "homepage": null,
+      "stars": 0,
+      "forks": 0,
+      "language": "JavaScript",
+      "topics": []
+    },
+    {
+      "name": "jangue_nights",
+      "description": null,
+      "html_url": "https://github.com/Gmdrax/jangue_nights",
+      "homepage": null,
+      "stars": 0,
+      "forks": 0,
+      "language": "HTML",
+      "topics": []
+    },
     {
       "name": "portafolio",
       "description": null,
