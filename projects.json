@@ -3,8 +3,18 @@
   "total_repos": 8,
   "total_stars": 0,
   "total_forks": 0,
-  "updated_at": "2026-02-06T02:28:57.726549Z",
+  "updated_at": "2026-02-07T02:25:01.055677Z",
   "projects": [
+    {
+      "name": "portafolio",
+      "description": null,
+      "html_url": "https://github.com/Gmdrax/portafolio",
+      "homepage": null,
+      "stars": 0,
+      "forks": 0,
+      "language": "HTML",
+      "topics": []
+    },
     {
       "name": "Pr01_Minitienda",
       "description": null,
@@ -19,16 +29,6 @@
       "name": "jangue_nights",
       "description": null,
       "html_url": "https://github.com/Gmdrax/jangue_nights",
-      "homepage": null,
-      "stars": 0,
-      "forks": 0,
-      "language": "HTML",
-      "topics": []
-    },
-    {
-      "name": "portafolio",
-      "description": null,
-      "html_url": "https://github.com/Gmdrax/portafolio",
       "homepage": null,
       "stars": 0,
       "forks": 0,
